@@ -11,8 +11,8 @@ A B C
 
 and not 
 
-A A A
-A B B
-A C C
+A A A  
+A B B    
+A C C     
 
 .
