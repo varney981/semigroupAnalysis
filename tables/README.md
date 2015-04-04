@@ -5,6 +5,12 @@ E.g: A,A,A,A,B,C,A,B,C
 
 reads as
 
-A A A         A A A
-A B C         A B B
-A B C and not A C C
+A A A         
+A B C         
+A B C 
+
+and not 
+
+A A A
+A B B
+A C C
