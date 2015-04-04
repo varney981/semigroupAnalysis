@@ -87,6 +87,4 @@ class CayleyTable(object):
             print ' '.join(rowChar)
 
 
-                
-
 
