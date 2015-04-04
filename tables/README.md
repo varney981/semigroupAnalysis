@@ -14,3 +14,5 @@ and not
 A A A
 A B B
 A C C
+
+.
