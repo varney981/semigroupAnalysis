@@ -1,7 +1,7 @@
 import csv
 
-'Using a properly formatted file, read each Cayley table to a list'
 def readAllTables(fileName, order):
+    """Using a properly formatted file, read each Cayley table to a list"""
     result = [];
 
     #Open file and read each row to a Cayley table
@@ -11,8 +11,8 @@ def readAllTables(fileName, order):
             result.append(readTable(tableInst, order));
     return result;
 
-'Read a Cayley table from a list of symbols'
 def readTable(tableList, order):
+    """Read a Cayley table from a list of symbols"""
     result = CayleyTable(order);
 
     #Use each element in the list and add to dictionary
@@ -28,18 +28,18 @@ def readTable(tableList, order):
         print 'Unacceptable!'
         return None;
 
-'Table object used to perform group operations'
 class CayleyTable(object):
-    'Initialize an empty CayleyTable'
+"""Table object used to perform group operations"""
     def __init__(self, order):
+        """Initialize an empty CayleyTable"""
         self.cTable  = {};
         self.order   = order;
         self.symbols = [];
         for i in range(0, order):
             self.symbols.append(chr(ord('A') + i))
 
-    'Return true if operation is associative for this table'
     def isAssoc(self):
+        """Return true if operation is associative for this table"""
         for left in self.symbols:
             for mid in self.symbols:
                 for right in self.symbols:
@@ -61,24 +61,23 @@ class CayleyTable(object):
         #If a non-associative case is not found assume associativity
         return 1;
                         
-
-    'Using a term with valid symbols, return the evaluated term for the group'
     def simplifyTerm(self, term):
-        #If the term is already evaluated or else can be done in one step'
+        """Using the term, return evaluated term for the group"""
         if len(term) == 1:
+            #If the term is already evaluated or else can be done in one step
             return term;
         elif len(term) == 2:
             return self.cTable[term];
 
-        #Iteratively process term using table'
+        #Iteratively process term using table
         newTerm = self.cTable[term[0:2]]
         for i in range(2, len(term)):
             newTerm = self.cTable[newTerm + term[i]];
 
         return newTerm;
 
-    'Print table in matrix form'
     def printTable(self):
+        """Print table in matrix form"""
         for left in self.symbols:
             columnNum = 0;
             rowChar   = [];
@@ -86,5 +85,49 @@ class CayleyTable(object):
                 rowChar.append(self.simplifyTerm(left + right));
             print ' '.join(rowChar)
 
+    def leftMultiplyBySet(self, y):
+        """For passed term y and the group set for this table, compute the set Sy"""
+        result = set();
+        rightTerm = self.simplifyTerm(y);
+        for leftTerm in self.symbols:
+            result.add(self.simplifyTerm(leftTerm + rightTerm));
+        return result;
 
+    def rightMultiplyBySet(self, y):
+        """For passed term y and the group set for this table, compute the set yS"""
+        result = set();
+        leftTerm = self.simplifyTerm(y);
+        for rightTerm in self.symbols:
+            result.add(self.simplifyTerm(leftTerm + rightTerm));
+        return result;
+
+    def findLeftMultipleInSetProduct(self, x, y):
+        """Find left multiples of x = zy.
+        
+        For passed terms x, y and for the group set for this table, compute the
+        set Sy and return each term z in S such that x = zy. If no such z is found,
+        return the empty set.
+        """     
+        result = set();
+        rightTerm = self.simplifyTerm(y);
+        for leftTerm in self.symbols:
+            productTerm = self.simplifyTerm(leftTerm + rightTerm);
+            if productTerm == x:
+                result.add(leftTerm)
+        return result;
+        
+    def findRightMultipleInSetProduct(self, x, y):
+        """Find the right multiples of x = yz.
+        
+        For passed terms x, y and for the group set for this table, compute the 
+        set yS and return each term z in S such that x = yz. If no such z is
+        found, return the empty set.
+        """
+        result = set();
+        leftTerm = self.simplifyTerm(y);
+        for rightTerm in self.symbols:
+            productTerm = self.simplifyTerm(leftTerm + rightTerm);
+            if productTerm == x:
+                result.add(rightTerm)
+        return result;
 
