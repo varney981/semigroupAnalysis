@@ -29,7 +29,7 @@ def readTable(tableList, order):
         return None;
 
 class CayleyTable(object):
-"""Table object used to perform group operations"""
+    """Table object used to perform group operations"""
     def __init__(self, order):
         """Initialize an empty CayleyTable"""
         self.cTable  = {};
@@ -131,3 +131,35 @@ class CayleyTable(object):
                 result.add(rightTerm)
         return result;
 
+    def findFirstCommutants(self, x):
+        """Find all elements a in the group set such that xa == ax.
+        
+        The method returns a set containing all elements in the group set that
+        commute with the term passed. If none are found, the empty set is returned.
+        """
+        result = set();
+        for a in self.symbols:
+            ax = self.simplifyTerm(a+x);
+            xa = self.simplifyTerm(x+a);
+            if ax == xa:
+                result.add(a);
+        return result;
+
+    def findSecondCommutants(self, x):
+        """Determine second commutant elements of x.
+        
+        Finds all elements b in the group set such that if xa == ax for some a in
+        the group set, then ba == ab for all a in the group set.
+        """
+        result = set();
+        firstCommSet = self.findFirstCommutants(x);
+        for b in self.symbols:
+            isCommutant = 1;
+            for a in firstCommSet:
+                ba = self.simplifyTerm(b+a);
+                ab = self.simplifyTerm(a+b);
+                if ba != ab:
+                    isCommutant = 0;
+            if isCommutant:
+                result.add(b);
+        return result;
