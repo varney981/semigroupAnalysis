@@ -57,7 +57,7 @@ tableNum = 0;
 for tbl in tbls:
     tableNum += 1;
 
-    # Generate all (b, c)-pairs without L-equivalence
+    # Generate all (b, c)-pairs without R-equivalence
     bLcPairs = getNonR_EquivalentPairs(tbl);
 
     # Identify ordered triples (a, b, c) and corresponding terms v, w, such
