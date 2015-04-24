@@ -18,7 +18,6 @@ count = 0;
 total = 0;
 for tbl in tbls:
     tableNum += 1;
-    print tableNum;
     for a1 in groupSet:
         for a2 in groupSet:
             for b in groupSet:
@@ -66,8 +65,11 @@ for tbl in tbls:
 
                 # Check if a counter-example was found for any question
                 if q1 or q2 or q3:
+                    print tableNum;
+                    tbl.printTable();
+                    print '(a1 = ' + a1 + ', a2 = ' + a2 + ', b = ' + b + ')';
+                    print '--------------------------------';
+                    print;
                     count += 1;
-
-print count;
 
 
