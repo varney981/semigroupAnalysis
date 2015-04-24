@@ -154,12 +154,12 @@ class CayleyTable(object):
         result = set();
         firstCommSet = self.findFirstCommutants(x);
         for b in self.symbols:
-            isCommutant = 1;
+            isCommutant = 0;
             for a in firstCommSet:
                 ba = self.simplifyTerm(b+a);
                 ab = self.simplifyTerm(a+b);
-                if ba != ab:
-                    isCommutant = 0;
+                if ba == ab:
+                    isCommutant = 1;
             if isCommutant:
                 result.add(b);
         return result;
