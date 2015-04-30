@@ -90,11 +90,15 @@ for tbl in tbls:
         baSecondComm = tbl.findSecondCommutants(b+a);
         abSecondComm = tbl.findSecondCommutants(a+b);
         quadyAndSecondComm.append(((a, b, c, y), baSecondComm, abSecondComm));
-    #print quadyAndSecondComm;
 
     # Test if ya is a second communtant of ba and if ay is a second
     # commutant of ab. If both are true, print for this step.
     for ((a, b, c, y), baSecondComm, abSecondComm) in quadyAndSecondComm:
+        print tableNum;
+        print (a, b, c, y);
+        print baSecondComm;
+        print abSecondComm;
+        print;
         ya = tbl.simplifyTerm(y+a);
         ay = tbl.simplifyTerm(a+y);
         if ya in baSecondComm and ay in abSecondComm:
