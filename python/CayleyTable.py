@@ -28,6 +28,14 @@ def readTable(tableList, order):
         print 'Unacceptable!'
         return None;
 
+#TODO: DEVELOP SOLUTION FOR TRANSPOSING A LIST OF TABLES RESPONSIBLY
+#def transposeAllTables(tableList): 
+    """Transpose each table in this list and return only associative tables.
+
+    Non-associative transpositions will not be returned and a blank list (?)
+    will be returned instead.
+    """ 
+
 class CayleyTable(object):
     """Table object used to perform group operations"""
     def __init__(self, order):
@@ -165,3 +173,25 @@ class CayleyTable(object):
             if isCommutant:
                 result.add(b);
         return result;
+
+    def transposeTable(self):
+        """Transpose the multiplication table and return.
+
+        Non-associative transpositions will not be returned and a blank list
+        will be returned instead.
+        """
+        #tblCopy = self.copy;
+        numToTranspose = 0;
+        for row in range(0, self.order):
+            left = chr(ord('A') + row);
+            for col in range(0, numToTranspose):
+                right = chr(ord('A') + col);
+                swap = self.cTable[left + right];
+                self.cTable[left + right] = self.cTable[right + left];
+                self.cTable[right + left] = swap;
+            numToTranspose = numToTranspose + 1;
+        if self.isAssoc():
+            return 1;
+        else:
+            return 0;
+
