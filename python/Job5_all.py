@@ -18,7 +18,6 @@ count = 0;
 total = 0;
 for tbl in tbls:
     tableNum += 1;
-    print tableNum;
     for a1 in groupSet:
         for a2 in groupSet:
             for b1 in groupSet:
@@ -33,7 +32,7 @@ for tbl in tbls:
                                 Sb2 = set();
                                 for elem in groupSet:
                                     b1S.add(tbl.simplifyTerm(b1 + elem));
-                                    Sb2.add(tbl.simplifyTerm(elem + b1));
+                                    Sb2.add(tbl.simplifyTerm(elem + b2));
 
                                 # Check clause (1)
                                 z_b1S = z in b1S;
@@ -69,9 +68,19 @@ for tbl in tbls:
                                 dz = tbl.simplifyTerm(d + z);
                                 clause4 = False;
                                 if xd == dz:
-                                    clause4 == True;
+                                    clause4 = True;
 
-                                if clause1 and clause2 and clause3 and not clause4:
+                                if clause1 and clause2 and clause3 and (not clause4):
+                                    tbl.printTable();
+                                    print 'a1 = ' + a1;
+                                    print 'a2 = ' + a2;
+                                    print 'b1 = ' + b1;
+                                    print 'b2 = ' + b2;
+                                    print 'z  = ' + z;
+                                    print 'x  = ' + x;
+                                    print 'd  = ' + d;
+                                    print;
+                                    print;
                                     count += 1;
 
 
