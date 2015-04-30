@@ -102,11 +102,11 @@ for tbl in tbls:
     # Test if ya is a second communtant of ba and if ay is a second
     # commutant of ab. If both are true, print for this step.
     for ((a, b, c, y), caSecondComm, acSecondComm) in quadyAndSecondComm:
-        print tableNum;
+        """print tableNum;
         print (a, b, c, y);
         print caSecondComm;
         print acSecondComm;
-        print;
+        print;"""
         ya = tbl.simplifyTerm(y+a);
         ay = tbl.simplifyTerm(a+y);
         if ya in caSecondComm and ay in acSecondComm:
