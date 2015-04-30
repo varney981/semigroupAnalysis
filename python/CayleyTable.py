@@ -148,8 +148,9 @@ class CayleyTable(object):
     def findSecondCommutants(self, x):
         """Determine second commutant elements of x.
         
-        Finds all elements b in the group set such that if xa == ax for some a in
-        the group set, then ba == ab for all a in the group set.
+        First, find the set A such that each element in A commutes with x.
+        Then find the set B such that each element in B commutes with
+        each element in A. Return set B.
         """
         result = set();
         firstCommSet = self.findFirstCommutants(x);
@@ -160,6 +161,7 @@ class CayleyTable(object):
                 ab = self.simplifyTerm(a+b);
                 if ba != ab:
                     isCommutant = 0;
+                    break;
             if isCommutant:
                 result.add(b);
         return result;

@@ -37,8 +37,15 @@ def printStep5(sNum, s, a, b, c, y, ya, ay, ba, ab, baSecComm, abSecComm):
     print 'ay           = ' + w;
     print 'ba           = ' + vc;
     print 'ab           = ' + bw;
-    print 'Comm_2(ba)   = ' + baSecComm;
-    print 'Comm_2(ab)   = ' + abSecComm;
+    print 'Comm_2(ba)   = ';
+    for elem in baSecComm:
+        print elem;
+    print
+    print 'Comm_2(ab)   = ';
+    for elem in abSecComm:
+        print elem;
+    print '----------------------------------------------';
+    print;
     print;
 
 
@@ -103,6 +110,8 @@ for tbl in tbls:
         ya = tbl.simplifyTerm(y+a);
         ay = tbl.simplifyTerm(a+y);
         if ya in caSecondComm and ay in acSecondComm:
+            ab = tbl.simplifyTerm(a + b);
+            ba = tbl.simplifyTerm(b + a);
             printStep5(tableNum, tbl, a, b, c, y, ya, ay, ba, ab, 
                         caSecondComm, acSecondComm);
 

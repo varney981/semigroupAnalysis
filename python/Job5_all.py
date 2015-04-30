@@ -75,3 +75,4 @@ for tbl in tbls:
                                     count += 1;
 
 
+print count;
