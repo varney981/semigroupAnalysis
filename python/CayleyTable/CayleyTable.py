@@ -1,5 +1,23 @@
 import csv
 
+def readRangeOfTables(fileName, order, first, last):
+    """Using a properly formatted file, read each Cayley table to a list
+    
+    Defined range must use 0-based indexing. 
+    The first table is included, and the last is excluded.
+    """
+    result = [];
+
+    #Open file and read each row to a Cayley table
+    with open(fileName, 'rb') as csvfile:
+        tableNum = 0;
+        tableReader = csv.reader(csvfile)
+        for tableInst in tableReader:
+            if first <= tableNum and tableNum < last:
+                result.append(readTable(tableInst, order));
+            tableNum += 1;
+    return result;
+
 def readAllTables(fileName, order):
     """Using a properly formatted file, read each Cayley table to a list"""
     result = [];

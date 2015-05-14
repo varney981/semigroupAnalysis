@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys;
+sys.path.insert(0, "CayleyTable/");
 import CayleyTable;
 
 # Get file name and order from input
