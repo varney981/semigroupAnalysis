@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys;
+sys.path.insert(0, "CayleyTable/");
 import CayleyTable;
 from itertools import product as cartProduct;
 
@@ -8,13 +9,19 @@ from itertools import product as cartProduct;
 filename = sys.argv[1];
 order = ord(sys.argv[2]) - ord('0');
 
-# Load all Caylay tables
-tbls = CayleyTable.readAllTables(filename, order);
+# If a range was passed, read tables for this range
+if len(sys.argv) >= 5:
+    tableNum  = int(sys.argv[3]);
+    lastTable = int(sys.argv[4]);
+    tbls = CayleyTable.readRangeOfTables(filename,order,
+                                         tableNum, lastTable);
+else:  #Load all tables
+    tableNum = 0;
+    tbls = CayleyTable.readAllTables(filename, order);
 
 # Run tests on each Cayley table for each permutation of the group set
 groupSet = tbls[0].symbols;
 #TODO: SET UP OUTPUT FILE
-tableNum = 0;
 count = 0;
 total = 0;
 for tbl in tbls:
