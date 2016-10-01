@@ -33,10 +33,10 @@ def printStep5(sNum, s, a, b, c, y, ya, ay, ba, ab, baSecComm, abSecComm):
     print 'S# ' + str(sNum) + ':';
     s.printTable();
     print '(a, b, c, y) = (' + a + ', ' + b + ', ' + c + ', ' + y + ')';
-    print 'ya           = ' + v;
-    print 'ay           = ' + w;
-    print 'ba           = ' + vc;
-    print 'ab           = ' + bw;
+    print 'ya           = ' + ya;
+    print 'ay           = ' + ay;
+    print 'ba           = ' + ba;
+    print 'ab           = ' + ab;
     print 'Comm_2(ba)   = ';
     for elem in baSecComm:
         print elem;

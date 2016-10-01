@@ -29,20 +29,20 @@ def printStep3(sNum, s, a, b, c, v, w, vc, bw):
     print 'bw        = ' + bw;
     print;
 
-def printStep5(sNum, s, a, b, c, y, ya, ay, ba, ab, baSecComm, abSecComm):
+def printStep5R(sNum, s, a, b, c, y, ya, ay, ca, ac, caSecComm, acSecComm):
     print 'S# ' + str(sNum) + ':';
     s.printTable();
     print '(a, b, c, y) = (' + a + ', ' + b + ', ' + c + ', ' + y + ')';
-    print 'ya           = ' + v;
-    print 'ay           = ' + w;
-    print 'ba           = ' + vc;
-    print 'ab           = ' + bw;
-    print 'Comm_2(ba)   = ';
-    for elem in baSecComm:
+    print 'ya           = ' + ya;
+    print 'ay           = ' + ay;
+    print 'ca           = ' + ca;
+    print 'ac           = ' + ac;
+    print 'Comm_2(ca)   = ';
+    for elem in caSecComm:
         print elem;
     print
-    print 'Comm_2(ab)   = ';
-    for elem in abSecComm:
+    print 'Comm_2(ac)   = ';
+    for elem in acSecComm:
         print elem;
     print '----------------------------------------------';
     print;
@@ -65,12 +65,12 @@ for tbl in tbls:
     tableNum += 1;
 
     # Generate all (b, c)-pairs without R-equivalence
-    bLcPairs = getNonR_EquivalentPairs(tbl);
+    bRcPairs = getNonR_EquivalentPairs(tbl);
 
     # Identify ordered triples (a, b, c) and corresponding terms v, w, such
     # that b == vcab and c == cabw for some v, w in the group set.
     quintvw = [];
-    for (b, c) in bLcPairs:
+    for (b, c) in bRcPairs:
         for a in tbl.symbols:
             vSet = tbl.findLeftMultipleInSetProduct(b, c+a+b);
             wSet = tbl.findRightMultipleInSetProduct(c, c+a+b);
@@ -110,9 +110,9 @@ for tbl in tbls:
         ya = tbl.simplifyTerm(y+a);
         ay = tbl.simplifyTerm(a+y);
         if ya in caSecondComm and ay in acSecondComm:
-            ab = tbl.simplifyTerm(a + b);
-            ba = tbl.simplifyTerm(b + a);
-            printStep5(tableNum, tbl, a, b, c, y, ya, ay, ba, ab, 
+            ac = tbl.simplifyTerm(a + b);
+            ca = tbl.simplifyTerm(b + a);
+            printStep5R(tableNum, tbl, a, b, c, y, ya, ay, ca, ac, 
                         caSecondComm, acSecondComm);
 
 """END OF SCRIPT"""

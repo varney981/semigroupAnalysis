@@ -102,14 +102,17 @@ class CayleyTable(object):
 
         return newTerm;
 
-    def printTable(self):
+    def printTable(self, fh=None):
         """Print table in matrix form"""
         for left in self.symbols:
             columnNum = 0;
             rowChar   = [];
             for right in self.symbols:
                 rowChar.append(self.simplifyTerm(left + right));
-            print ' '.join(rowChar)
+            if fh == None:
+                print ' '.join(rowChar);
+            else:
+                fh.write(' '.join(rowChar) + '\n');
 
     def leftMultiplyBySet(self, y):
         """For passed term y and the group set for this table, compute the set Sy"""
@@ -124,6 +127,22 @@ class CayleyTable(object):
         result = set();
         leftTerm = self.simplifyTerm(y);
         for rightTerm in self.symbols:
+            result.add(self.simplifyTerm(leftTerm + rightTerm));
+        return result;
+
+    def leftMultiplyByPartialSet(self, right, setTerms):
+        """For passed term right and the passed set, compute the set S(right)"""
+        result = set();
+        rightTerm = self.simplifyTerm(right);
+        for leftTerm in setTerms:
+            result.add(self.simplifyTerm(leftTerm + rightTerm));
+        return result;
+        
+    def rightMultiplyByPartialSet(self, left, setTerms):
+        """For passed term left and the passed set, compute the set (left)S"""
+        result = set();
+        leftTerm = self.simplifyTerm(left);
+        for rightTerm in setTerms:
             result.add(self.simplifyTerm(leftTerm + rightTerm));
         return result;
 
