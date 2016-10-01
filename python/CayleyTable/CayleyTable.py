@@ -1,4 +1,6 @@
 import csv
+import numpy
+from numpy import matrix
 
 def readRangeOfTables(fileName, order, first, last):
     """Using a properly formatted file, read each Cayley table to a list
@@ -33,17 +35,17 @@ def readTable(tableList, order):
     """Read a Cayley table from a list of symbols"""
     result = CayleyTable(order);
 
-    #Use each element in the list and add to dictionary
-    columnNum = 0;
-    for left in result.symbols:
-        for right in result.symbols:
-            result.cTable[left + right] = tableList[columnNum];
-            columnNum += 1;
+    #Use each element in the list
+    listElem = 0;
+    for left in range(0, order):
+        for right in range(0, order):
+            result.cTable[left,right] = ord(tableList[listElem]) - ord('A');
+            listElem += 1;
 
     if result.isAssoc():
         return result;
     else:
-        print 'Unacceptable!'
+        print('Unacceptable!')
         return None;
 
 #TODO: DEVELOP SOLUTION FOR TRANSPOSING A LIST OF TABLES RESPONSIBLY
@@ -58,92 +60,142 @@ class CayleyTable(object):
     """Table object used to perform group operations"""
     def __init__(self, order):
         """Initialize an empty CayleyTable"""
-        self.cTable  = {};
+        self.cTable  = numpy.zeros((order, order), dtype=numpy.int);
         self.order   = order;
-        self.symbols = [];
-        for i in range(0, order):
-            self.symbols.append(chr(ord('A') + i))
+        self.unitElementFound = False;
+        self.prevUnit = None;
 
-    def isAssoc(self):
-        """Return true if operation is associative for this table"""
-        for left in self.symbols:
-            for mid in self.symbols:
-                for right in self.symbols:
-                    #Perform left operation first
-                    left_mid  = self.simplifyTerm(left + mid);
-                    lResult   = self.simplifyTerm(left_mid + right);
-
-                    #Perform right operation first
-                    mid_right = self.simplifyTerm(mid + right);
-                    rResult   = self.simplifyTerm(left + mid_right);
-
-                    #Compare each order of operations
-                    if lResult != rResult:
-                        print left;
-                        print mid;
-                        print right;
-                        return 0;
-
-        #If a non-associative case is not found assume associativity
-        return 1;
-                        
-    def simplifyTerm(self, term):
+    def multiply(self, term):
         """Using the term, return evaluated term for the group"""
         if len(term) == 1:
             #If the term is already evaluated or else can be done in one step
             return term;
         elif len(term) == 2:
-            return self.cTable[term];
+            return self.cTable[term[0], term[1]];
 
-        #Iteratively process term using table
-        newTerm = self.cTable[term[0:2]]
-        for i in range(2, len(term)):
-            newTerm = self.cTable[newTerm + term[i]];
+        #Recursively process term using table
+        newTerm = self.multiply(term[0:len(term) - 1]);
+        return self.cTable[newTerm][term[len(term) - 1]];
 
-        return newTerm;
+    def transposeTable(self):
+        self.cTable = numpy.transpose(self.cTable)
+        self.unitElementFound = False;
+        self.prevUnit = None;
 
+    def isAssoc(self):
+        """Return true if operation is associative for this table"""
+        iterNum = 0
+        for left in range(0, self.order):
+            #print iterNum
+            iterNum += 1;
+            for mid in range(0, self.order):
+                for right in range(0, self.order):
+                    #Perform left operation first
+                    left_mid  = self.multiply([left, mid]);
+                    lResult   = self.multiply([left_mid, right]);
+
+                    #Perform right operation first
+                    mid_right = self.multiply([mid, right]);
+                    rResult   = self.multiply([left,  mid_right]);
+
+                    #Compare each order of operations
+                    if lResult != rResult:
+                        return 0;
+
+        #If a non-associative case is not found, associativity proven
+        return 1;
+
+    def hasUnitElement(self):
+        """Check for a unit element"""
+        leftUnities = [];
+        for left in range(0, self.order):
+            isLeftUnity = True;
+            for right in range(0, self.order):
+                if not self.multiply([left,right]) == right:
+                    isLeftUnity = False;
+                    break;
+            if isLeftUnity:
+                leftUnities.append(left);
+
+        for right in leftUnities:
+            isRightUnity = True;
+            for left in range(0, self.order):
+                if not self.multiply([left,right]) == left: 
+                    isRightUnity = False;
+                    break;
+            if isRightUnity:
+                return True;
+
+        return False;
+
+    def unitElement(self):
+        """Return unit element"""
+        if self.unitElementFound:
+            return self.prevUnit;
+
+        leftUnities = [];
+        for left in range(0, self.order):
+            isLeftUnity = True;
+            for right in range(0, self.order):
+                if not self.multiply([left,right]) == right:
+                    isLeftUnity = False;
+                    break;
+            if isLeftUnity:
+                leftUnities.append(left);
+
+        for right in leftUnities:
+            isRightUnity = True;
+            for left in range(0, self.order):
+                if not self.multiply([left,right]) == left: 
+                    isRightUnity = False;
+                    break;
+            if isRightUnity:
+                self.unitElementFound = True;
+                self.prevUnit = right;
+                return right;
+                        
     def printTable(self, fh=None):
         """Print table in matrix form"""
         for left in self.symbols:
             columnNum = 0;
             rowChar   = [];
             for right in self.symbols:
-                rowChar.append(self.simplifyTerm(left + right));
+                rowChar.append(self.multiply([left , right]));
             if fh == None:
-                print ' '.join(rowChar);
+                print (' '.join(rowChar))
             else:
                 fh.write(' '.join(rowChar) + '\n');
 
     def leftMultiplyBySet(self, y):
         """For passed term y and the group set for this table, compute the set Sy"""
         result = set();
-        rightTerm = self.simplifyTerm(y);
+        rightTerm = self.multiply(y);
         for leftTerm in self.symbols:
-            result.add(self.simplifyTerm(leftTerm + rightTerm));
+            result.add(self.multiply([leftTerm , rightTerm]));
         return result;
 
     def rightMultiplyBySet(self, y):
         """For passed term y and the group set for this table, compute the set yS"""
         result = set();
-        leftTerm = self.simplifyTerm(y);
+        leftTerm = self.multiply([y]);
         for rightTerm in self.symbols:
-            result.add(self.simplifyTerm(leftTerm + rightTerm));
+            result.add(self.multiply([leftTerm , rightTerm]));
         return result;
 
     def leftMultiplyByPartialSet(self, right, setTerms):
         """For passed term right and the passed set, compute the set S(right)"""
         result = set();
-        rightTerm = self.simplifyTerm(right);
+        rightTerm = self.multiply([right]);
         for leftTerm in setTerms:
-            result.add(self.simplifyTerm(leftTerm + rightTerm));
+            result.add(self.multiply([leftTerm , rightTerm]));
         return result;
         
     def rightMultiplyByPartialSet(self, left, setTerms):
         """For passed term left and the passed set, compute the set (left)S"""
         result = set();
-        leftTerm = self.simplifyTerm(left);
+        leftTerm = self.multiply([left]);
         for rightTerm in setTerms:
-            result.add(self.simplifyTerm(leftTerm + rightTerm));
+            result.add(self.multiply([leftTerm , rightTerm]));
         return result;
 
     def findLeftMultipleInSetProduct(self, x, y):
@@ -154,9 +206,9 @@ class CayleyTable(object):
         return the empty set.
         """     
         result = set();
-        rightTerm = self.simplifyTerm(y);
+        rightTerm = self.multiply([y]);
         for leftTerm in self.symbols:
-            productTerm = self.simplifyTerm(leftTerm + rightTerm);
+            productTerm = self.multiply([leftTerm , rightTerm]);
             if productTerm == x:
                 result.add(leftTerm)
         return result;
@@ -169,9 +221,9 @@ class CayleyTable(object):
         found, return the empty set.
         """
         result = set();
-        leftTerm = self.simplifyTerm(y);
+        leftTerm = self.multiply([y]);
         for rightTerm in self.symbols:
-            productTerm = self.simplifyTerm(leftTerm + rightTerm);
+            productTerm = self.multiply([leftTerm , rightTerm]);
             if productTerm == x:
                 result.add(rightTerm)
         return result;
@@ -184,8 +236,8 @@ class CayleyTable(object):
         """
         result = set();
         for a in self.symbols:
-            ax = self.simplifyTerm(a+x);
-            xa = self.simplifyTerm(x+a);
+            ax = self.multiply([a,x]);
+            xa = self.multiply([x,a]);
             if ax == xa:
                 result.add(a);
         return result;
@@ -202,8 +254,8 @@ class CayleyTable(object):
         for b in self.symbols:
             isCommutant = 1;
             for a in firstCommSet:
-                ba = self.simplifyTerm(b+a);
-                ab = self.simplifyTerm(a+b);
+                ba = self.multiply([b,a]);
+                ab = self.multiply([a,b]);
                 if ba != ab:
                     isCommutant = 0;
                     break;
@@ -211,24 +263,14 @@ class CayleyTable(object):
                 result.add(b);
         return result;
 
-    def transposeTable(self):
-        """Transpose the multiplication table and return.
+    def power(self, operand, n):
+        if n == 0:
+            return self.unitElement();
+        elif n == 1:
+            return operand;
 
-        Non-associative transpositions will not be returned and a blank list
-        will be returned instead.
-        """
-        #tblCopy = self.copy;
-        numToTranspose = 0;
-        for row in range(0, self.order):
-            left = chr(ord('A') + row);
-            for col in range(0, numToTranspose):
-                right = chr(ord('A') + col);
-                swap = self.cTable[left + right];
-                self.cTable[left + right] = self.cTable[right + left];
-                self.cTable[right + left] = swap;
-            numToTranspose = numToTranspose + 1;
-        if self.isAssoc():
-            return 1;
-        else:
-            return 0;
-
+        # compute power
+        result = operand;
+        for i in range(n-1):
+            result = self.multiply([result, operand])
+        return result;
