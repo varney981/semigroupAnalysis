@@ -11,36 +11,41 @@ from itertools import product
 
 
 ###START OF SCRIPT
+#get order of tables
+order = int(raw_input("What order semigroups do you want to test? >> "))
 
-#process arguments
-args = util.parseArgs()
-
+#ask to transpose tables
+isTransposed = False
+transpose_postfix = ''
+transpose = raw_input("Do you want to transpose the tables? ([Y]/[n]) >> ")
+if transpose == 'Y' or transpose == 'y':
+    transpose_postfix = '_S_op'
+    isTransposed = True
+    
 #create tables using selected mode
-if args.mode == "all":
-    tables = util.readAllTables(args.order, args.transpose)
-elif args.mode == "range":
-    tables = util.readRangeOfTables(args.order, args.first, args.last, args.transpose)
-elif args.mode == "single":
-    tables = util.readSingleTable(args.order, args.singleNum, args.transpose)
+mode = raw_input("Which tables to test?([]All/[R]ange/[S]ingle) >> ")
+if mode == 'S' or mode == 's':
+    tables = util.readSingleTable(args.order, args.singleNum, isTransposed)
+elif mode == 'R' or mode == 'r':
+    first_table = raw_input("First table number? >> ")
+    last_table = raw_input("Last table number? >> ")
+    tables = util.readRangeOfTables(args.order, first_table, last_table, isTransposed)
 else:
-    raise ValueError("Mode selected undefined")
+    tables = util.readAllTables(order, isTransposed)
+
+#set special arguments here
+degree = raw_input("What is desired deg(m)? >> ")
+special_str = "degree" + degree
+degree = int(degree)
 
 #generate output file and (if necessary) a filename
-if args.output == None:
-    filename = "results/" + __file__[0:-3] + "_order" + str(args.order) + "_mdegree_" + args.special
-else:
-    filename = args.output
-if args.transpose:
-    filename += '_S_op'
-filename += '.txt'
+filename = raw_input("Please enter specific file name, or leave blank for generated name >> ")
+if filename == '':
+    filename = "results/" + __file__[0:-3] + "_order" + str(order) + "_" + special_str
+    filename += transpose_postfix
+    filename += '.txt'
 with open(filename, 'w') as fh:
     pass
-
-#define the degree using the special argument
-try:
-    degree = int(args.special)
-except ValueError:
-    print("Invalid degree chosen for monomials")
 
 #begin testing
 abhy_table_list = []
@@ -65,6 +70,7 @@ for table in tables:
 #write satisfactory a,b,h,y,S to file if needed
 with open(filename, 'a') as fh:
     #fh.write('\n'.join(list(map(lambda x: str(x), abhy_table_list))) + '\n')
+    pass
 
 for monomial_char_tuple in product('abhy', repeat=degree):
     monomial_char_list = list(monomial_char_tuple)
