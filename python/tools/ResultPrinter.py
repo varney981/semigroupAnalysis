@@ -6,7 +6,7 @@ def setAsString(writeSet):
     setStr   = '{';
     sliceEnd = -1;
     for elem in writeSet:
-        setStr = setStr + elem + ', ';
+        setStr = setStr + str(elem) + ', ';
         sliceEnd += 3;
     setStr = setStr[0:sliceEnd];
     setStr = setStr + '}';
@@ -36,34 +36,62 @@ class ResultPrinter(object):
         self.resultDoubles.append((label, value));
         self.numResults += 1;
 
-    def printAll(self):
+    def printAll(self, fh=None):
         """Print truth table and results side by side"""
-        print 'S# ' + str(self.tableNum) + ':';
-        self.refTable.printTable();
-        print;
-        print '+' + 18 * '-' + '+' + 18 * '-' + '+'
-        print '|' + '{0:18}'.format('Statement') + '|' + '{0:18}'.format('T/F') + '|' + '  Results';
-        for line in range(0, max(self.numStatements, self.numResults)):
-            if line < self.numStatements:
-                statement     = self.truthTableDoubles[line][0];
-                statementPart = '{0:18}'.format(statement);
-                booleanRes    = str(self.truthTableDoubles[line][1]);
-                booleanPart   = '{0:18}'.format(booleanRes);
-            else:
-                statementPart = '{0:18}'.format(' ');
-                booleanPart   = '{0:18}'.format(' ');
-            tablePart = '|' + statementPart + '|' + booleanPart + '|';
+        if fh == None:
+            print 'S# ' + str(self.tableNum) + ':';
+            self.refTable.printTable();
+            print;
+            print '+' + 18 * '-' + '+' + 18 * '-' + '+'
+            print '|' + '{0:18}'.format('Statement') + '|' + '{0:18}'.format('T/F') + '|' + '  Results';
+            for line in range(0, max(self.numStatements, self.numResults)):
+                if line < self.numStatements:
+                    statement     = self.truthTableDoubles[line][0];
+                    statementPart = '{0:18}'.format(statement);
+                    booleanRes    = str(self.truthTableDoubles[line][1]);
+                    booleanPart   = '{0:18}'.format(booleanRes);
+                else:
+                    statementPart = '{0:18}'.format(' ');
+                    booleanPart   = '{0:18}'.format(' ');
+                tablePart = '|' + statementPart + '|' + booleanPart + '|';
 
-            if line < self.numResults:
-                term = self.resultDoubles[line][0];
-                termEval = str(self.resultDoubles[line][1]);
-                resultPart = term + ' = ' + termEval;
-            else:
-                resultPart = ' ';
+                if line < self.numResults:
+                    term = self.resultDoubles[line][0];
+                    termEval = str(self.resultDoubles[line][1]);
+                    resultPart = term + ' = ' + termEval;
+                else:
+                    resultPart = ' ';
 
-            print tablePart + '  ' + resultPart;
-        print '+' + 18 * '-' + '+' + 18 * '-' + '+' + '-' * 36
-        print;
+                print tablePart + '  ' + resultPart;
+            print '+' + 18 * '-' + '+' + 18 * '-' + '+' + '-' * 36
+            print;
+        else:
+            fh.write('S# ' + str(self.tableNum) + ':\n')
+            self.refTable.printTable(fh)
+            fh.write('\n')
+            fh.write( '+' + 18 * '-' + '+' + 18 * '-' + '+\n')
+            fh.write( '|' + '{0:18}'.format('Statement') + '|' + '{0:18}'.format('T/F') + '|' + '  Results\n')
+            for line in range(0, max(self.numStatements, self.numResults)):
+                if line < self.numStatements:
+                    statement     = self.truthTableDoubles[line][0];
+                    statementPart = '{0:18}'.format(statement);
+                    booleanRes    = str(self.truthTableDoubles[line][1]);
+                    booleanPart   = '{0:18}'.format(booleanRes);
+                else:
+                    statementPart = '{0:18}'.format(' ');
+                    booleanPart   = '{0:18}'.format(' ');
+                tablePart = '|' + statementPart + '|' + booleanPart + '|';
+
+                if line < self.numResults:
+                    term = self.resultDoubles[line][0];
+                    termEval = str(self.resultDoubles[line][1]);
+                    resultPart = term + ' = ' + termEval;
+                else:
+                    resultPart = ' ';
+
+                fh.write( tablePart + '  ' + resultPart + '\n')
+            fh.write( '+' + 18 * '-' + '+' + 18 * '-' + '+' + '-' * 36 + '\n')
+            fh.write('\n')
 
     def printAll_NoGroup(self, fh=None):
         """Print truth table and results side by side"""

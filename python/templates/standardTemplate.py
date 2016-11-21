@@ -16,15 +16,24 @@ args = util.parseArgs()
 
 #create tables using selected mode
 if args.mode == "all":
-    tables = readAllTables(args.order)
+    tables = util.readAllTables(args.order, args.transpose)
 elif args.mode == "range":
-    tables = readRangeOfTables(args.order, args.first, args.last)
+    tables = util.readRangeOfTables(args.order, args.first, args.last, args.transpose)
 elif args.mode == "single":
-    tables = readSingleTable(args.order, args.singleNum)
+    tables = util.readSingleTable(args.order, args.singleNum, args.transpose)
 else:
     raise ValueError("Mode selected undefined")
 
-#go to work
+#generate output file and (if necessary) a filename
+if args.output == None:
+    filename = "results/" + __file__[0:-3] + "_order" + str(args.order) + "_" + args.special
+else:
+    filename = args.output
+if args.transpose:
+    filename += '_S_op'
+filename += '.txt'
+with open(filename, 'w') as fh:
+    pass
 
 ###END OF SCRIPT
 

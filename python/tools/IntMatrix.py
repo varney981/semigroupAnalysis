@@ -1,4 +1,6 @@
 from numpy import matrix as premat;
+import numpy
+import CayleyTable
 
 class IntMatrix(object):
     
@@ -15,8 +17,8 @@ class IntMatrix(object):
     # static method: generate a matrix number based on matrix
     @staticmethod
     def generateMatrixNumber(M):
-        dimension = mat.dimension;
-        modulo    = mat.modulo;
+        dimension = IntMatrix.dimension;
+        modulo    = IntMatrix.modulo;
         
         result = 0;
         elementNumber = 0;
@@ -30,11 +32,12 @@ class IntMatrix(object):
     # static method: generate a matrix using a matrix number
     @staticmethod
     def generateMatrixFromNumber(n):
-        dimension = mat.dimension;
-        modulo = mat.modulo
+        dimension = IntMatrix.dimension;
+        modulo = IntMatrix.modulo
+        matNum = n
 
-        resultMatrix = numpy.zeros((mat.dimension,mat.dimension), dtype=numpy.int);
-        result = mat();
+        resultMatrix = numpy.zeros((IntMatrix.dimension,IntMatrix.dimension), dtype=numpy.int);
+        result = IntMatrix();
         elementNumber = pow(dimension, 2) - 1;
         for i in reversed(range(dimension)):
             for j in reversed(range(dimension)):
@@ -48,32 +51,30 @@ class IntMatrix(object):
 
         result.matrix = resultMatrix;
         result.trace = numpy.trace(resultMatrix);
-        result.number = n;
+        result.number = matNum;
         return result;
 
     @staticmethod
     def generateMatrixFromMatrix(M):
-        result = mat();
+        result = IntMatrix();
         result.matrix = M;
-        result.number = mat.generateMatrixNumber(M);
+        result.number = IntMatrix.generateMatrixNumber(M);
         return result;
       
 
     def __init__(self):
-        self.matrix = numpy.zeros((mat.dimension,mat.dimension), dtype=numpy.int);
+        self.matrix = numpy.zeros((IntMatrix.dimension,IntMatrix.dimension), dtype=numpy.int);
         self.number = 0;
 
     def __eq__(self, other):
         return self.number == other.number;
 
     def __add__(self,other):
-        start_time1 = time.time()
         modulo = self.modulo;
         dimension = self.dimension;
         numEntries = pow(dimension, 2);
         matArg = (premat(self.matrix) + premat(other.matrix)) % modulo;
-        start_time2 = time.time()
-        newMat = mat.generateMatrixFromMatrix(matArg);
+        newMat = IntMatrix.generateMatrixFromMatrix(matArg);
 
         return newMat;
 
@@ -85,15 +86,21 @@ class IntMatrix(object):
             matArg = (premat(self.matrix) * premat(other.matrix)) % modulo;
         except AttributeError:
             matArg = (premat(self.matrix) * other) % modulo;
-        newMat = mat.generateMatrixFromMatrix(matArg);
+        newMat = IntMatrix.generateMatrixFromMatrix(matArg);
 
         return newMat;
+
+    def __str__(self):
+        return str(self.matrix)
+
+    def __repr__(self):
+        return str(self.matrix)
 
 # function: populate a list with all trace values for matrices
 def generate_trace_values(order):
     result = list()
     for i in range(order):
-        M = mat.generateMatrixFromNumber(i)
+        M = IntMatrix.generateMatrixFromNumber(i)
         result.append(numpy.trace(M.matrix))
     return result
 
@@ -101,9 +108,9 @@ def generate_trace_values(order):
 # function: print results in desired format
 def print_results(a ,b, filename):
     print "a = "
-    print (mat.generateMatrixFromNumber(a)).matrix
+    print (IntMatrix.generateMatrixFromNumber(a)).matrix
     print "b = "
-    print (mat.generateMatrixFromNumber(b)).matrix
+    print (IntMatrix.generateMatrixFromNumber(b)).matrix
     print
 
 # function: generate table for testing all matrices
@@ -111,9 +118,9 @@ def genCayleyTable(modulo, dimension):
     order = pow(modulo, pow(dimension, 2));
     result = CayleyTable.CayleyTable(order);
     for left in range(0, order):
-        leftMatrix  = mat.generateMatrixFromNumber(left);
+        leftMatrix  = IntMatrix.generateMatrixFromNumber(left);
         for right in range(0, order):
-            rightMatrix = mat.generateMatrixFromNumber(right);
+            rightMatrix = IntMatrix.generateMatrixFromNumber(right);
             indexMatrix = leftMatrix * rightMatrix;
             result.cTable[left, right] = indexMatrix.number;
     return result;
@@ -167,14 +174,14 @@ def find_null_space(A):
     A_mat = A.matrix
     x_dim = [A.dimension, 1]
     result = []
-    x_range = (mat.modulo)**(mat.dimension)
+    x_range = (IntMatrix.modulo)**(IntMatrix.dimension)
     for x_num in range(x_range):
         x = numpy.zeros(x_dim, dtype=int)
-        for i in range(mat.dimension - 1, -1, -1):
-            if x_num >= mat.modulo**i:
-                while x_num >= mat.modulo**i:
+        for i in range(IntMatrix.dimension - 1, -1, -1):
+            if x_num >= IntMatrix.modulo**i:
+                while x_num >= IntMatrix.modulo**i:
                     x[i][0] += 1
-                    x_num -= mat.modulo**i
+                    x_num -= IntMatrix.modulo**i
         comp_mat = (A.matrix.dot(x)) % 2 == numpy.zeros(x_dim,dtype=int)
         #print A.matrix
         #print x

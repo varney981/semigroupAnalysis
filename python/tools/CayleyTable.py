@@ -1,4 +1,5 @@
 import numpy
+import util
 
 class CayleyTable(object):
     """Table object used to perform group operations"""
@@ -13,7 +14,7 @@ class CayleyTable(object):
         """Using the term, return evaluated term for the group"""
         if len(term) == 1:
             #If the term is already evaluated or else can be done in one step
-            return term;
+            return term[0];
         elif len(term) == 2:
             return self.cTable[term[0], term[1]];
 
@@ -22,9 +23,9 @@ class CayleyTable(object):
         return self.cTable[newTerm][term[len(term) - 1]];
 
     def transposeTable(self):
-        self.cTable = numpy.transpose(self.cTable)
-        self.unitElementFound = False;
-        self.prevUnit = None;
+        result = CayleyTable(self.order)
+        result.cTable = numpy.transpose(self.cTable)
+        return result
 
     def hasUnitElement(self):
         """Check for a unit element"""
@@ -78,34 +79,34 @@ class CayleyTable(object):
     def Sy(self, y):
         """For passed term y and the group set for this table, compute the set Sy"""
         result = set();
-        rightTerm = self.multiply(y);
-        return set(self.cTable[:][rightTerm]);
+        for leftTerm in range(self.order):
+            result.add(self.multiply([leftTerm, y]));
+        return result;
 
     def xS(self, x):
         """For passed term x and the group set for this table, compute the set xS"""
         result = set();
-        leftTerm = self.multiply([x]);
-        return set(self.cTable[leftTerm][:]);
+        for rightTerm in range(self.order):
+            result.add(self.multiply([x, rightTerm]));
+        return result;
 
-    def Py(self, right, setTerms):
+    def Py(self, y, setTerms):
         """For passed term right and the passed set, compute the set S(right)"""
         result = set();
-        rightTerm = self.multiply([right]);
         for leftTerm in setTerms:
-            result.add(self.multiply([leftTerm , rightTerm]));
+            result.add(self.multiply([leftTerm,y]));
         return result;
         
-    def xP(self, left, setTerms):
+    def xP(self, x, setTerms):
         """For passed term left and the passed set, compute the set (left)S"""
         result = set();
-        leftTerm = self.multiply([left]);
         for rightTerm in setTerms:
-            result.add(self.multiply([leftTerm , rightTerm]));
+            result.add(self.multiply([x,rightTerm]));
         return result;
 
     def xSy(self,x,y):
         """For passed terms x,y and the group set for this table, compute the set xSy"""
-        return self.rightMultiplyByPartialSet(self.xS(x))
+        return self.Py(y,self.xS(x))
 
     def xInSy(self, x, y):
         """Find left multiples of x = zy.
@@ -137,6 +138,20 @@ class CayleyTable(object):
                 result.add(rightTerm)
         return result;
 
+    def hInxSy(self, h, x, y, single=True):
+        """Find z in S such that h = xzy.
+        
+        If no such z is found, return the empty set.
+        """
+        result = set()
+        for z in range(self.order):
+            xzy = self.multiply([x,z,y])
+            if xzy == h:
+                result.add(z)
+            if xzy == h and single:
+                return result
+        return result
+
     def comm_1(self, x):
         """Find all elements a in the group set such that xa == ax.
         
@@ -152,25 +167,19 @@ class CayleyTable(object):
         return result;
 
     def comm_2(self, a):
-        comm_1_a = set()
+        comm_1_a = self.comm_1(a)
         comm_2_a = set()
         order = self.order
-        for s in range(order):
-            s_a = tbl.multiply([s,a])
-            a_s = tbl.multiply([a,s])
-            if s_a == a_s:
-                comm_1_a.add(s)
-
-        for c in range(order):
+        for s in comm_1_a:
             non_comm = False
-            for s in comm_1_a:
-                s_c = tbl.multiply([s,c])
-                c_s = tbl.multiply([c,s])
-                if s_c != c_s:
+            for c in range(order):
+                sc = self.multiply([s,c])
+                cs = self.multiply([c,s])
+                if sc != cs:
                     non_comm = True
                     break
             if not non_comm:
-                comm_2_a.add(c)
+                comm_2_a.add(s)
 
         return comm_2_a
 
@@ -209,16 +218,14 @@ class CayleyTable(object):
 
 
     def are_xLy_related(self,x,y):
-        order = S.order
-        xUSx = set(self.xS(x)).add(x)
-        yUSy = set(self.xS(y)).add(y)
-        return xUSx == yUSy
+        if x == y:
+            return True
+        return self.Sy(x) == self.Sy(y)
 
     def are_xRy_related(self,x,y):
-        order = S.order
-        xUxS = set(self.Sy(x)).add(x)
-        yUyS = set(self.Sy(y)).add(y)
-        return xUxS == yUyS
+        if x == y:
+            return True
+        return self.xS(x) == self.xS(y)
 
     def get_invertible_terms(self):
         result = set()
@@ -243,3 +250,82 @@ class CayleyTable(object):
             if are_xRy_related(x,y):
                 R_class.add(x)
         return R_class
+
+
+    def isAnnihilator(self,y,a,b,c):
+        """ Check if y is an "annihilator" (b,c)-inverse of a.
+        See REGULARITY OF cab - 29 September 2016 for definition.
+        """
+        #test (3)
+        yay = self.multiply([y,a,y])
+        if yay != y:
+            return False
+
+        #test (4)
+        for (p,q) in util.orderProduct(self, 2):
+            py = self.multiply([p,y])
+            qy = self.multiply([q,y])
+            pb = self.multiply([p,b])
+            qb = self.multiply([q,b])
+            if (py == qy and pb != qb) or (pb == qb and py != qy):
+                return False
+
+        #test (5)
+        for (r,s) in util.orderProduct(self, 2):
+            yr = self.multiply([y,r])
+            ys = self.multiply([y,s])
+            cr = self.multiply([c,r])
+            cs = self.multiply([c,s])
+            if (yr == ys and cr != cs) or (cr == cs and yr != ys):
+                return False
+
+        return True
+
+    def isHybrid(self,y,a,b,c):
+        """ Check if y is a "hybrid" (b,c)-inverse of a.
+        See REGULARITY OF cab - 29 September 2016 for definition
+        """
+        #test (3)
+        yay = self.multiply([y,a,y])
+        if yay != y:
+            return False
+
+        #test (5)
+        for (r,s) in util.orderProduct(self, 2):
+            yr = self.multiply([y,r])
+            ys = self.multiply([y,s])
+            cr = self.multiply([c,r])
+            cs = self.multiply([c,s])
+            if (yr == ys and cr != cs) or (cr == cs and yr != ys):
+                return False
+
+        #test (6)
+        if y == b:
+            return True
+        else:
+            return self.are_xRy_related(y,b)
+
+    def isRegular(self, m):
+        """ Check if m is regular
+        If m is regular, return u such that m = mum.
+        Else, return -1
+        """
+        for u in range(self.order):
+            mum = self.multiply([m,u,m])
+            if m == mum:
+                return u
+        return -1
+        
+
+    def printTable(self, fh=None):
+        """Print table in matrix form"""
+        for left in range(self.order):
+            columnNum = 0;
+            rowChar   = [];
+            for right in range(self.order):
+                rowChar.append(str(self.multiply([left,right])));
+            if fh == None:
+                print (' '.join(rowChar))
+            else:
+                fh.write(' '.join(rowChar) + '\n');
+
