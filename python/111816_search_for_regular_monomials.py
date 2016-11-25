@@ -98,7 +98,7 @@ for monomial_char_tuple in product('abhy', repeat=degree):
         results.addToResults('y',y)
         results.addToResults(''.join([m_str,'S',m_str]), mSm)
         with open(filename,'a') as fh:
-            fh.write('m={0} is of Type C, as in\n'.format(m_str))
+            fh.write('m = {0} is of Type C, as in\n'.format(m_str))
             results.printAll(fh)
         continue
         
@@ -132,7 +132,7 @@ for monomial_char_tuple in product('abhy', repeat=degree):
             fh.write(results)
     else:
         m_str = ''.join(monomial_char_list)
-        results = 'm = {0} is of Type B, i.e. {0} is always in {0}S{0}, but there is no monomial u of degree 1, 2, or 3 in a,b,h,y such that {0} = {0}u{0} for all S,a,b,h,y as in (1*),(2),(3).\n\n'.format(m_str,u_list_str)
+        results = 'm = {0} is of Type B, i.e. {0} is always in {0}S{0}, but there is no monomial u of degree 1, 2, or 3 in a,b,h,y such that {0} = {0}u{0} for all S,a,b,h,y as in (1*),(2),(3).\n\n'.format(m_str)
         with open(filename, 'a') as fh:
             fh.write(results)
         
